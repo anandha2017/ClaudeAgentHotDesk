@@ -62,7 +62,7 @@ function Screen_Guest() {
             </div>
             <div>
               <div style={{ fontSize: 11, color: 'var(--csb-ink-500)' }}>Wi-Fi</div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 600, color: 'var(--csb-navy-800)' }}>OSB-Guest · csb-2026</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 600, color: 'var(--csb-navy-800)' }}>Acme-Guest · csb-2026</div>
             </div>
           </div>
         </div>

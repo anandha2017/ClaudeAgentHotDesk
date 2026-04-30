@@ -29,7 +29,7 @@ function Sidebar({ active, role = 'facilities' }) {
         <div className="hd-admin-brand-mark">D</div>
         <div>
           <div className="hd-admin-brand-name">DeskHub</div>
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>OSB Group · Atrium HQ</div>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>Acme Corp · Atrium HQ</div>
         </div>
       </div>
       {navItems.map((it, i) => {

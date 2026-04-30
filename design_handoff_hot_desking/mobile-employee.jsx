@@ -476,7 +476,7 @@ function Screen_CheckIn() {
         </div>
 
         <div style={{ padding: '20px 24px 12px', fontSize: 12, color: 'rgba(255,255,255,0.55)', textAlign: 'center', lineHeight: 1.5 }}>
-          Auto check-in active — we'll mark you here when you connect to <span style={{ color: '#fff' }}>OSB-Office</span> Wi-Fi.
+          Auto check-in active — we'll mark you here when you connect to <span style={{ color: '#fff' }}>Acme-Office</span> Wi-Fi.
         </div>
       </div>
     </MobileFrame>
