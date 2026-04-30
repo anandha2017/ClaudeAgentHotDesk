@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Floor Plan Editor – DeskHub Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --csb-navy-900:#061B35; --csb-navy-800:#0A2A4E; --csb-navy-700:#15406F;
+      --csb-navy-100:#EAF1F8; --csb-navy-50:#F5F8FC;
+      --csb-gold-700:#B07A1E; --csb-gold-500:#E8A93B; --csb-gold-400:#F1C06A;
+      --csb-teal-500:#1FA39B;
+      --csb-ink-900:#0B1524; --csb-ink-700:#2B3647; --csb-ink-500:#51627A; --csb-ink-300:#8A97AC;
+      --csb-line:#D9E0EA; --csb-line-strong:#B8C3D3;
+      --csb-success:#1E8754; --csb-success-bg:#E4F4EC;
+      --csb-warning:#B4761A; --csb-warning-bg:#FFF1D6;
+      --csb-danger:#B4291F;
+      --font-serif:'Source Serif 4',Georgia,serif;
+      --font-sans:system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;
+      --font-mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+      font-family: var(--font-sans);
+      min-width: 1280px;
+    }
+
+    .app-layout {
+      display: grid;
+      grid-template-columns: 240px 1fr 320px;
+      height: 100vh;
+      width: 100%;
+    }
+
+    /* ===== LEFT SIDEBAR ===== */
+    .sidebar {
+      background: #061B35;
+      color: rgba(255,255,255,0.7);
+      padding: 22px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      overflow-y: auto;
+    }
+
+    .brand-block {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 22px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      margin-bottom: 16px;
+    }
+
+    .brand-mark {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: #E8A93B;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-serif);
+      font-weight: 700;
+      color: #0A2A4E;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .brand-text-name {
+      font-family: var(--font-serif);
+      font-size: 16px;
+      color: white;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .brand-text-sub {
+      font-size: 11px;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.3;
+    }
+
+    .nav-section-label {
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      padding: 14px 8px 6px;
+      font-weight: 600;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13.5px;
+      color: rgba(255,255,255,0.72);
+      font-weight: 500;
+      transition: background 0.12s, color 0.12s;
+      text-decoration: none;
+    }
+
+    .nav-item:hover {
+      background: rgba(255,255,255,0.05);
+      color: white;
+    }
+
+    .nav-item.active {
+      background: rgba(255,255,255,0.08);
+      color: white;
+    }
+
+    .building-sub-panel {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .building-sub-label {
+      font-size: 10px;
+      color: rgba(255,255,255,0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .building-dropdown {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: rgba(255,255,255,0.8);
+      padding: 6px 10px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .floor-list {
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .floor-item {
+      font-size: 12px;
+      color: rgba(255,255,255,0.6);
+      padding: 5px 10px;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+
+    .floor-item.selected {
+      color: white;
+      background: rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .floor-meta {
+      font-size: 11px;
+      color: rgba(255,255,255,0.4);
+      font-family: var(--font-mono);
+      padding: 2px 10px;
+    }
+
+    .zone-list {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .zone-list-label {
+      font-size: 10px;
+      color: rgba(255,255,255,0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .zone-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 8px;
+    }
+
+    .zone-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .zone-name {
+      font-size: 12px;
+      color: rgba(255,255,255,0.7);
+      flex: 1;
+    }
+
+    .zone-count {
+      font-size: 11px;
+      color: rgba(255,255,255,0.4);
+      font-family: var(--font-mono);
+    }
+
+    .user-row {
+      margin-top: auto;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-name {
+      font-size: 13px;
+      color: rgba(255,255,255,0.72);
+      font-weight: 500;
+    }
+
+    /* ===== MIDDLE COLUMN ===== */
+    .middle-col {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .top-bar {
+      background: white;
+      border-bottom: 1px solid #D9E0EA;
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+
+    .top-bar-title {
+      font-family: var(--font-serif);
+      font-size: 22px;
+      font-weight: 700;
+      color: #0A2A4E;
+      line-height: 1.2;
+    }
+
+    .top-bar-sub {
+      font-size: 13px;
+      color: #51627A;
+      margin-top: 2px;
+    }
+
+    .top-bar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .btn-preview {
+      background: white;
+      border: 1px solid #B8C3D3;
+      font-size: 13px;
+      font-weight: 600;
+      color: #0A2A4E;
+      border-radius: 8px;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-family: var(--font-sans);
+    }
+
+    .btn-preview:hover { background: #F5F8FC; }
+
+    .btn-publish {
+      background: #0A2A4E;
+      border: 1px solid #0A2A4E;
+      font-size: 13px;
+      font-weight: 600;
+      color: white;
+      border-radius: 8px;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-family: var(--font-sans);
+    }
+
+    .btn-publish:hover { background: #15406F; }
+
+    .toolbar {
+      background: white;
+      border-bottom: 1px solid #D9E0EA;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .tool-btn {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 7px 12px;
+      border-radius: 7px;
+      cursor: pointer;
+      font-family: var(--font-sans);
+      border: 1px solid #D9E0EA;
+      background: white;
+      color: #2B3647;
+      transition: background 0.1s;
+    }
+
+    .tool-btn:hover { background: #F5F8FC; }
+
+    .tool-btn.active {
+      background: #EAF1F8;
+      border-color: #0A2A4E;
+      color: #0A2A4E;
+    }
+
+    .toolbar-divider {
+      width: 1px;
+      height: 20px;
+      background: #D9E0EA;
+      margin: 0 6px;
+      flex-shrink: 0;
+    }
+
+    .toolbar-summary {
+      font-size: 12px;
+      color: #51627A;
+    }
+
+    .toolbar-spacer { flex: 1; }
+
+    .unsaved-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #B4761A;
+      font-weight: 500;
+    }
+
+    .unsaved-dot {
+      width: 6px;
+      height: 6px;
+      background: #B4761A;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .legend-strip {
+      padding: 8px 20px;
+      background: #FAFBFD;
+      border-bottom: 1px solid #D9E0EA;
+      display: flex;
+      gap: 16px;
+      flex-shrink: 0;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #51627A;
+    }
+
+    .legend-swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    .canvas-area {
+      flex: 1;
+      overflow: auto;
+      background: #FAFBFD;
+      padding: 24px;
+    }
+
+    .floor-card {
+      background: white;
+      border-radius: 12px;
+      border: 1px solid #D9E0EA;
+      min-height: 520px;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* SVG desk hover */
+    .desk-group {
+      cursor: pointer;
+      transform-box: fill-box;
+      transform-origin: center;
+      transition: transform 0.15s;
+    }
+    .desk-group:hover { transform: scale(1.05); }
+
+    /* ===== RIGHT INSPECTOR ===== */
+    .inspector {
+      background: white;
+      border-left: 1px solid #D9E0EA;
+      padding: 20px;
+      overflow-y: auto;
+      width: 320px;
+      height: 100vh;
+      flex-shrink: 0;
+    }
+
+    .insp-eyebrow {
+      font-size: 11px;
+      color: #B07A1E;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .insp-title {
+      font-family: var(--font-serif);
+      font-size: 24px;
+      font-weight: 700;
+      color: #0A2A4E;
+      letter-spacing: -0.01em;
+      margin-top: 4px;
+      line-height: 1.2;
+    }
+
+    .insp-sub {
+      font-size: 13px;
+      color: #51627A;
+      margin-top: 4px;
+    }
+
+    .insp-section {
+      margin-top: 18px;
+    }
+
+    .insp-section-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #51627A;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .prop-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #D9E0EA;
+      gap: 8px;
+    }
+
+    .prop-label {
+      font-size: 13px;
+      color: #51627A;
+    }
+
+    .prop-value {
+      font-size: 13px;
+      color: #0A2A4E;
+      font-weight: 500;
+      text-align: right;
+    }
+
+    .prop-value.mono {
+      font-family: var(--font-mono);
+    }
+
+    .pill-cluster {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .pill {
+      background: #EAF1F8;
+      color: #0A2A4E;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+    }
+
+    .pill-add {
+      background: white;
+      border: 1px dashed #B8C3D3;
+      color: #51627A;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      cursor: pointer;
+    }
+
+    .status-btns {
+      display: flex;
+      gap: 6px;
+    }
+
+    .status-btn {
+      flex: 1;
+      padding: 8px 6px;
+      border-radius: 7px;
+      border: 1px solid #D9E0EA;
+      background: white;
+      color: #2B3647;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--font-sans);
+      text-align: center;
+      transition: background 0.1s, border-color 0.1s, color 0.1s;
+    }
+
+    .status-btn.active[data-status="free"] {
+      border-color: #1E8754;
+      background: #E4F4EC;
+      color: #1E8754;
+    }
+
+    .status-btn.active[data-status="oos"] {
+      border-color: #B4761A;
+      background: #FFF1D6;
+      color: #B4761A;
+    }
+
+    .status-btn.active[data-status="reserved"] {
+      border-color: #A14A8F;
+      background: #F3E2EE;
+      color: #A14A8F;
+    }
+
+    .booking-row {
+      padding: 8px 0;
+      border-bottom: 1px solid #D9E0EA;
+    }
+
+    .booking-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .booking-date {
+      font-size: 12px;
+      font-weight: 500;
+      color: #0A2A4E;
+    }
+
+    .booking-time {
+      font-size: 12px;
+      color: #2B3647;
+      font-family: var(--font-mono);
+    }
+
+    .booking-user {
+      font-size: 12px;
+      color: #51627A;
+      margin-top: 2px;
+    }
+
+    .booking-release {
+      font-size: 11px;
+      color: #15406F;
+      cursor: pointer;
+      text-decoration: none;
+      background: none;
+      border: none;
+      font-family: var(--font-sans);
+      font-weight: 500;
+    }
+
+    .booking-release:hover { text-decoration: underline; }
+
+    svg text { user-select: none; }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+
+    <!-- ===== LEFT SIDEBAR ===== -->
+    <aside class="sidebar">
+      <!-- Brand -->
+      <div class="brand-block">
+        <div class="brand-mark">D</div>
+        <div>
+          <div class="brand-text-name">DeskHub</div>
+          <div class="brand-text-sub">OSB Group · Atrium HQ</div>
+        </div>
+      </div>
+
+      <!-- Workplace section -->
+      <div class="nav-section-label">Workplace</div>
+
+      <a class="nav-item" href="#">
+        <svg stroke="currentColor" fill="none" stroke-width="1.75" width="16" height="16" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Dashboard
+      </a>
+      <a class="nav-item active" href="#">
+        <svg stroke="currentColor" fill="none" stroke-width="1.75" width="16" height="16" viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+        Floor plans
+      </a>
+      <a class="nav-item" href="#">
+        <svg stroke="currentColor" fill="none" stroke-width="1.75" width="16" height="16" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        Desks
+      </a>
+      <a class="nav-item" href="#">
+        <svg stroke="currentColor" fill="none" stroke-width="1.75" width="16" height="16" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Bookings
+      </a>
+
+      <!-- Insights section -->
+      <div class="nav-section-label">Insights</div>
+      <a class="nav-item" href="#">
+        <svg stroke="currentColor" fill="none" stroke-width="1.75" width="16" height="16" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Utilisation
+      </a>
+      <a class="nav-item" href="#">
+        <svg stroke="currentColor" fill="none" stroke-width="1.75" width="16" height="16" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        Issues
+      </a>
+
+      <!-- Building/Floor sub-panel -->
+      <div class="building-sub-panel">
+        <div class="building-sub-label">Building</div>
+        <div class="building-dropdown">
+          <span>Atrium HQ</span>
+          <svg stroke="currentColor" fill="none" stroke-width="1.75" width="14" height="14" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="floor-list">
+          <div class="floor-item">Floor 1</div>
+          <div class="floor-item selected">
+            Floor 2
+            <svg stroke="currentColor" fill="none" stroke-width="1.75" width="13" height="13" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="floor-meta">60 desks · 5 zones</div>
+          <div class="floor-item">Floor 3</div>
+        </div>
+      </div>
+
+      <!-- Zone list -->
+      <div class="zone-list">
+        <div class="zone-list-label">Zones</div>
+        <div class="zone-row">
+          <div class="zone-dot" style="background:#EAF1F8;border:1px solid rgba(10,42,78,0.3);"></div>
+          <span class="zone-name">Quiet Zone</span>
+          <span class="zone-count">8</span>
+        </div>
+        <div class="zone-row">
+          <div class="zone-dot" style="background:#DFF3F1;"></div>
+          <span class="zone-name">Collaboration</span>
+          <span class="zone-count">8</span>
+        </div>
+        <div class="zone-row">
+          <div class="zone-dot" style="background:#F6F8FB;border:1px solid rgba(0,0,0,0.15);"></div>
+          <span class="zone-name">General</span>
+          <span class="zone-count">10</span>
+        </div>
+        <div class="zone-row">
+          <div class="zone-dot" style="background:#F3E2EE;"></div>
+          <span class="zone-name">Phone Booths</span>
+          <span class="zone-count">3</span>
+        </div>
+        <div class="zone-row">
+          <div class="zone-dot" style="background:#FFF8E8;"></div>
+          <span class="zone-name">Focus Pods</span>
+          <span class="zone-count">2</span>
+        </div>
+      </div>
+
+      <!-- User row -->
+      <div class="user-row">
+        <svg stroke="currentColor" fill="none" stroke-width="1.75" width="16" height="16" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span class="user-name">David Reed</span>
+      </div>
+    </aside>
+
+    <!-- ===== MIDDLE COLUMN ===== -->
+    <main class="middle-col">
+      <!-- Top bar -->
+      <div class="top-bar">
+        <div>
+          <div class="top-bar-title">Floor plans</div>
+          <div class="top-bar-sub">Atrium HQ · Floor 2 · v3 · published 12 Apr 2026</div>
+        </div>
+        <div class="top-bar-actions">
+          <button class="btn-preview">Preview</button>
+          <button class="btn-publish">Publish v4 →</button>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <button class="tool-btn active">Select</button>
+        <button class="tool-btn">Add desk</button>
+        <button class="tool-btn">Add zone</button>
+        <button class="tool-btn">Add room</button>
+        <button class="tool-btn">Mark out of service</button>
+        <div class="toolbar-divider"></div>
+        <span class="toolbar-summary">60 desks · 5 zones · 12 amenities</span>
+        <div class="toolbar-spacer"></div>
+        <div class="unsaved-indicator">
+          <span class="unsaved-dot"></span>
+          Unsaved changes
+        </div>
+      </div>
+
+      <!-- Legend strip -->
+      <div class="legend-strip">
+        <div class="legend-item">
+          <div class="legend-swatch" style="background:white;border:1.5px solid #1FA39B;"></div>
+          Free
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch" style="background:#D9E0EA;border:1.5px solid #B8C3D3;"></div>
+          Booked
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch" style="background:#0A2A4E;border:1.5px solid #0A2A4E;"></div>
+          Yours
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch" style="background:#E8A93B;border:1.5px solid #B07A1E;"></div>
+          Team
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch" style="background:repeating-linear-gradient(45deg,#fff,#fff 2px,#B8C3D3 2px,#B8C3D3 4px);border:1.5px solid #B8C3D3;"></div>
+          Out of service
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch" style="background:#F3E2EE;border:1.5px solid #A14A8F;"></div>
+          Reserved
+        </div>
+      </div>
+
+      <!-- Canvas area -->
+      <div class="canvas-area">
+        <div class="floor-card">
+          <svg id="floorPlan" viewBox="0 0 480 470" style="width:100%;height:100%;display:block;min-height:520px;" preserveAspectRatio="xMidYMid meet">
+            <defs>
+              <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(10,42,78,0.04)" stroke-width="1"/>
+              </pattern>
+              <pattern id="oosPattern" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                <line x1="0" y1="0" x2="0" y2="6" stroke="#B8C3D3" stroke-width="2"/>
+              </pattern>
+            </defs>
+
+            <!-- Background -->
+            <rect width="480" height="470" fill="white"/>
+            <rect width="480" height="470" fill="url(#grid)"/>
+
+            <!-- Zones -->
+            <rect x="20" y="20" width="220" height="160" rx="6" fill="#EEF2F8" stroke="rgba(10,42,78,0.08)" stroke-width="1"/>
+            <text x="30" y="38" font-size="10" font-weight="600" fill="rgba(10,42,78,0.55)" font-family="system-ui,sans-serif">QUIET ZONE</text>
+
+            <rect x="260" y="20" width="200" height="160" rx="6" fill="#DFF3F1" stroke="rgba(10,42,78,0.08)" stroke-width="1"/>
+            <text x="270" y="38" font-size="10" font-weight="600" fill="rgba(10,42,78,0.55)" font-family="system-ui,sans-serif">COLLABORATION</text>
+
+            <rect x="20" y="200" width="280" height="180" rx="6" fill="#F6F8FB" stroke="rgba(10,42,78,0.08)" stroke-width="1"/>
+            <text x="30" y="218" font-size="10" font-weight="600" fill="rgba(10,42,78,0.55)" font-family="system-ui,sans-serif">GENERAL</text>
+
+            <rect x="320" y="200" width="140" height="90" rx="6" fill="#F3E2EE" stroke="rgba(10,42,78,0.08)" stroke-width="1"/>
+            <text x="330" y="218" font-size="10" font-weight="600" fill="rgba(10,42,78,0.55)" font-family="system-ui,sans-serif">PHONE</text>
+
+            <rect x="320" y="300" width="140" height="80" rx="6" fill="#FFF8E8" stroke="rgba(10,42,78,0.08)" stroke-width="1"/>
+            <text x="330" y="318" font-size="10" font-weight="600" fill="rgba(10,42,78,0.55)" font-family="system-ui,sans-serif">FOCUS</text>
+
+            <!-- Rooms -->
+            <rect x="20" y="400" width="100" height="60" rx="4" fill="#F6F8FB" stroke="rgba(10,42,78,0.12)" stroke-width="1"/>
+            <text x="70" y="434" font-size="10" font-weight="600" fill="rgba(10,42,78,0.55)" font-family="system-ui,sans-serif" text-anchor="middle">Kitchen</text>
+
+            <rect x="130" y="400" width="90" height="60" rx="4" fill="#F6F8FB" stroke="rgba(10,42,78,0.12)" stroke-width="1"/>
+            <text x="175" y="434" font-size="10" font-weight="600" fill="rgba(10,42,78,0.55)" font-family="system-ui,sans-serif" text-anchor="middle">WC</text>
+
+            <rect x="230" y="400" width="110" height="60" rx="4" fill="#F6F8FB" stroke="rgba(10,42,78,0.12)" stroke-width="1"/>
+            <text x="285" y="434" font-size="10" font-weight="600" fill="rgba(10,42,78,0.55)" font-family="system-ui,sans-serif" text-anchor="middle">Reception</text>
+
+            <rect x="350" y="400" width="110" height="60" rx="4" fill="#F6F8FB" stroke="rgba(10,42,78,0.12)" stroke-width="1"/>
+            <text x="405" y="434" font-size="10" font-weight="600" fill="rgba(10,42,78,0.55)" font-family="system-ui,sans-serif" text-anchor="middle">Lift</text>
+
+            <!-- Desks rendered by JS -->
+            <g id="desksLayer"></g>
+
+            <!-- Compass -->
+            <g transform="translate(440,430)">
+              <circle r="14" fill="white" stroke="rgba(10,42,78,0.15)" stroke-width="1"/>
+              <path d="M 0 -8 L 3 4 L 0 1 L -3 4 Z" fill="#0A2A4E"/>
+              <text y="-16" font-size="8" font-weight="700" fill="#0A2A4E" text-anchor="middle" font-family="system-ui,sans-serif">N</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </main>
+
+    <!-- ===== RIGHT INSPECTOR ===== -->
+    <aside class="inspector">
+      <div class="insp-eyebrow">Selected</div>
+      <div class="insp-title" id="insp-title">Desk D-209</div>
+      <div class="insp-sub" id="insp-sub">Zone: General · Floor 2</div>
+
+      <!-- Properties -->
+      <div class="insp-section">
+        <div class="insp-section-label">Properties</div>
+        <div class="prop-row">
+          <span class="prop-label">Label</span>
+          <span class="prop-value" id="insp-label">D-209</span>
+        </div>
+        <div class="prop-row">
+          <span class="prop-label">Type</span>
+          <span class="prop-value">Standard · dual monitor</span>
+        </div>
+        <div class="prop-row">
+          <span class="prop-label">Coordinates</span>
+          <span class="prop-value mono" id="insp-coords">(185, 310)</span>
+        </div>
+        <div class="prop-row" style="border-bottom:none;">
+          <span class="prop-label">Bookable</span>
+          <span class="prop-value">08:00 – 19:00</span>
+        </div>
+      </div>
+
+      <!-- Amenities -->
+      <div class="insp-section">
+        <div class="insp-section-label">Amenities</div>
+        <div class="pill-cluster">
+          <span class="pill">Dual monitor</span>
+          <span class="pill">Standing</span>
+          <span class="pill">Wi-Fi 6</span>
+          <span class="pill">Window</span>
+          <span class="pill">Power × 4</span>
+          <span class="pill-add">+ add</span>
+        </div>
+      </div>
+
+      <!-- Status -->
+      <div class="insp-section">
+        <div class="insp-section-label">Status</div>
+        <div class="status-btns">
+          <button class="status-btn active" data-status="free">Available</button>
+          <button class="status-btn" data-status="oos">Out of service</button>
+          <button class="status-btn" data-status="reserved">Reserved</button>
+        </div>
+      </div>
+
+      <!-- Upcoming bookings -->
+      <div class="insp-section">
+        <div class="insp-section-label">Upcoming Bookings</div>
+        <div class="booking-row">
+          <div class="booking-top">
+            <span class="booking-date">Thu 30 Apr</span>
+            <span class="booking-time">09:00–17:30</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px;">
+            <span class="booking-user">Maya Khan</span>
+            <button class="booking-release">Release</button>
+          </div>
+        </div>
+        <div class="booking-row">
+          <div class="booking-top">
+            <span class="booking-date">Fri 1 May</span>
+            <span class="booking-time">09:00–17:30</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px;">
+            <span class="booking-user">Maya Khan</span>
+            <button class="booking-release">Release</button>
+          </div>
+        </div>
+        <div class="booking-row" style="border-bottom:none;">
+          <div class="booking-top">
+            <span class="booking-date">Tue 5 May</span>
+            <span class="booking-time">10:00–16:00</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px;">
+            <span class="booking-user">Sam Patel</span>
+            <button class="booking-release">Release</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    const DESKS = [
+      // Quiet zone
+      {id:'D-301',x:50,y:60,status:'free',zone:'Quiet'},
+      {id:'D-302',x:95,y:60,status:'booked',zone:'Quiet'},
+      {id:'D-303',x:140,y:60,status:'free',zone:'Quiet'},
+      {id:'D-304',x:185,y:60,status:'booked',zone:'Quiet'},
+      {id:'D-305',x:50,y:130,status:'booked',zone:'Quiet'},
+      {id:'D-306',x:95,y:130,status:'free',zone:'Quiet'},
+      {id:'D-307',x:140,y:130,status:'free',zone:'Quiet',accessible:true},
+      {id:'D-308',x:185,y:130,status:'oos',zone:'Quiet'},
+      // Collab zone
+      {id:'D-401',x:290,y:60,status:'booked',zone:'Collaboration'},
+      {id:'D-402',x:335,y:60,status:'booked',zone:'Collaboration'},
+      {id:'D-403',x:385,y:60,status:'free',zone:'Collaboration'},
+      {id:'D-404',x:430,y:60,status:'team',zone:'Collaboration'},
+      {id:'D-405',x:290,y:130,status:'team',zone:'Collaboration'},
+      {id:'D-406',x:335,y:130,status:'team',zone:'Collaboration'},
+      {id:'D-407',x:385,y:130,status:'free',zone:'Collaboration'},
+      {id:'D-408',x:430,y:130,status:'booked',zone:'Collaboration'},
+      // General zone
+      {id:'D-201',x:50,y:240,status:'free',zone:'General'},
+      {id:'D-202',x:95,y:240,status:'free',zone:'General'},
+      {id:'D-203',x:140,y:240,status:'booked',zone:'General'},
+      {id:'D-204',x:185,y:240,status:'free',zone:'General'},
+      {id:'D-205',x:230,y:240,status:'booked',zone:'General'},
+      {id:'D-206',x:50,y:310,status:'booked',zone:'General'},
+      {id:'D-207',x:95,y:310,status:'yours',zone:'General'},
+      {id:'D-208',x:140,y:310,status:'free',zone:'General'},
+      {id:'D-209',x:185,y:310,status:'free',zone:'General'},
+      {id:'D-210',x:230,y:310,status:'booked',zone:'General'},
+      // Phone booths (mini 22×22)
+      {id:'PB-1',x:350,y:230,status:'free',zone:'Phone',mini:true},
+      {id:'PB-2',x:395,y:230,status:'booked',zone:'Phone',mini:true},
+      {id:'PB-3',x:440,y:230,status:'free',zone:'Phone',mini:true},
+      // Focus pods (mini 22×22)
+      {id:'F-1',x:360,y:330,status:'booked',zone:'Focus',mini:true},
+      {id:'F-2',x:410,y:330,status:'free',zone:'Focus',mini:true},
+    ];
+
+    let selectedId = 'D-209';
+
+    const statusStyle = {
+      free:     { fill:'#fff',       stroke:'#1FA39B'  },
+      booked:   { fill:'#D9E0EA',    stroke:'#B8C3D3'  },
+      yours:    { fill:'#0A2A4E',    stroke:'#0A2A4E'  },
+      team:     { fill:'#E8A93B',    stroke:'#B07A1E'  },
+      oos:      { fill:'url(#oosPattern)', stroke:'#D9E0EA' },
+      reserved: { fill:'#F3E2EE',    stroke:'#A14A8F'  },
+    };
+
+    const NS = 'http://www.w3.org/2000/svg';
+
+    function makeSVGEl(tag, attrs) {
+      const el = document.createElementNS(NS, tag);
+      for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+      return el;
+    }
+
+    function renderFloorPlan() {
+      const layer = document.getElementById('desksLayer');
+      layer.innerHTML = '';
+
+      for (const d of DESKS) {
+        const size = d.mini ? 22 : 32;
+        const st = statusStyle[d.status] || statusStyle.free;
+
+        // Selection ring (below desk)
+        if (d.id === selectedId) {
+          const ring = makeSVGEl('rect', {
+            x: d.x - 4, y: d.y - 4,
+            width: size + 8, height: size + 8,
+            rx: '8', fill: 'none',
+            stroke: '#E8A93B', 'stroke-width': '2',
+            'stroke-dasharray': '3 3',
+            'pointer-events': 'none',
+          });
+          layer.appendChild(ring);
+        }
+
+        // Desk group
+        const g = makeSVGEl('g', { 'data-id': d.id, class: 'desk-group' });
+
+        // Desk rect
+        const rect = makeSVGEl('rect', {
+          x: d.x, y: d.y,
+          width: size, height: size,
+          rx: '5',
+          fill: st.fill,
+          stroke: st.stroke,
+          'stroke-width': '1.5',
+        });
+        g.appendChild(rect);
+
+        // Status-specific content
+        const cx = d.x + size / 2;
+        const cy = d.y + size / 2;
+
+        if (d.status === 'yours') {
+          const lbl = makeSVGEl('text', {
+            x: cx, y: cy + 3,
+            'font-size': '9',
+            'font-weight': '700',
+            fill: 'white',
+            'text-anchor': 'middle',
+            'font-family': 'system-ui,sans-serif',
+          });
+          lbl.textContent = 'YOU';
+          g.appendChild(lbl);
+        }
+
+        if (d.status === 'team') {
+          const dot = makeSVGEl('circle', {
+            cx: cx, cy: cy, r: '3',
+            fill: 'white',
+          });
+          g.appendChild(dot);
+        }
+
+        // Accessible badge (teal dot top-right)
+        if (d.accessible) {
+          const badge = makeSVGEl('circle', {
+            cx: d.x + size - 5, cy: d.y + 5, r: '3',
+            fill: '#1FA39B',
+          });
+          g.appendChild(badge);
+        }
+
+        layer.appendChild(g);
+      }
+    }
+
+    function updateInspector(desk) {
+      selectedId = desk.id;
+      document.getElementById('insp-title').textContent = 'Desk ' + desk.id;
+      document.getElementById('insp-sub').textContent = 'Zone: ' + desk.zone + ' · Floor 2';
+      document.getElementById('insp-coords').textContent = '(' + desk.x + ', ' + desk.y + ')';
+      document.getElementById('insp-label').textContent = desk.id;
+
+      // Map desk status to button
+      // free -> free button active, oos -> oos button active, reserved -> reserved, else none
+      const activeStatus = (desk.status === 'oos' || desk.status === 'reserved') ? desk.status
+                         : (desk.status === 'free') ? 'free' : null;
+
+      document.querySelectorAll('.status-btn').forEach(btn => {
+        btn.classList.toggle('active', activeStatus !== null && btn.dataset.status === activeStatus);
+      });
+
+      renderFloorPlan();
+    }
+
+    // SVG click delegation
+    document.getElementById('floorPlan').addEventListener('click', function(e) {
+      const g = e.target.closest('[data-id]');
+      if (!g) return;
+      const id = g.getAttribute('data-id');
+      const desk = DESKS.find(d => d.id === id);
+      if (desk) updateInspector(desk);
+    });
+
+    // Status button clicks update the selected desk
+    document.querySelectorAll('.status-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const desk = DESKS.find(d => d.id === selectedId);
+        if (!desk) return;
+        desk.status = btn.dataset.status;
+        updateInspector(desk);
+      });
+    });
+
+    // Initial render
+    renderFloorPlan();
+  </script>
+</body>
+</html>

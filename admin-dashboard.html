@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Utilisation Dashboard · DeskHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --csb-navy-900:#061B35; --csb-navy-800:#0A2A4E; --csb-navy-700:#15406F;
+    --csb-navy-600:#1B4680; --csb-navy-500:#2E5C96; --csb-navy-200:#C9D8EA;
+    --csb-navy-100:#EAF1F8; --csb-navy-50:#F5F8FC;
+    --csb-gold-700:#B07A1E; --csb-gold-600:#D99826; --csb-gold-500:#E8A93B;
+    --csb-gold-400:#F1C06A; --csb-gold-200:#F8E2AE; --csb-gold-50:#FFF8E8;
+    --csb-teal-500:#1FA39B; --csb-teal-100:#DFF3F1;
+    --csb-ink-900:#0B1524; --csb-ink-700:#2B3647; --csb-ink-500:#51627A; --csb-ink-300:#8A97AC;
+    --csb-line:#D9E0EA; --csb-line-strong:#B8C3D3;
+    --csb-success:#1E8754; --csb-success-bg:#E4F4EC;
+    --csb-warning:#B4761A; --csb-warning-bg:#FFF1D6;
+    --csb-danger:#B4291F; --csb-danger-bg:#FBE4E2;
+    --font-serif:'Source Serif 4',Georgia,serif;
+    --font-sans:system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;
+    --font-mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    font-family: var(--font-sans);
+    background: #FAFBFD;
+    color: var(--csb-ink-900);
+    min-width: 1280px;
+  }
+
+  .app-shell {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    background: var(--csb-navy-900);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    overflow-y: auto;
+  }
+
+  .sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 20px 16px 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .brand-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--csb-gold-500);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .brand-logo span {
+    font-family: var(--font-serif);
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--csb-navy-900);
+    line-height: 1;
+  }
+
+  .brand-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .brand-name {
+    font-family: var(--font-serif);
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.2;
+  }
+
+  .brand-sub {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.3;
+  }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 12px 12px 8px;
+  }
+
+  .nav-section {
+    margin-bottom: 20px;
+  }
+
+  .nav-section-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    padding: 0 10px;
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    color: rgba(255,255,255,0.72);
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+    margin-bottom: 2px;
+  }
+
+  .nav-item:hover {
+    background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.9);
+  }
+
+  .nav-item.active {
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+  }
+
+  .nav-item svg {
+    flex-shrink: 0;
+  }
+
+  .sidebar-footer {
+    padding: 12px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .user-row {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    color: rgba(255,255,255,0.72);
+    font-size: 13.5px;
+    cursor: pointer;
+  }
+
+  .user-row:hover {
+    background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.9);
+  }
+
+  /* ─── MAIN WRAPPER ─── */
+  .main-wrapper {
+    margin-left: 240px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ─── TOP BAR ─── */
+  .topbar {
+    background: #fff;
+    border-bottom: 1px solid var(--csb-line);
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    gap: 16px;
+  }
+
+  .topbar-title h1 {
+    font-family: var(--font-serif);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--csb-navy-800);
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+
+  .topbar-title p {
+    font-size: 13px;
+    color: var(--csb-ink-500);
+    margin-top: 2px;
+    line-height: 1;
+  }
+
+  .topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .search-wrapper {
+    position: relative;
+    width: 280px;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--csb-ink-300);
+  }
+
+  .search-input {
+    width: 100%;
+    background: #FAFBFD;
+    border: 1px solid var(--csb-line);
+    border-radius: 8px;
+    padding: 8px 12px 8px 34px;
+    font-size: 13px;
+    font-family: var(--font-sans);
+    color: var(--csb-ink-900);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .search-input::placeholder { color: var(--csb-ink-300); }
+  .search-input:focus { border-color: var(--csb-navy-500); }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-family: var(--font-sans);
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s, border-color 0.15s;
+    line-height: 1;
+  }
+
+  .btn-secondary {
+    background: #fff;
+    border: 1px solid var(--csb-line-strong);
+    color: var(--csb-navy-800);
+  }
+
+  .btn-secondary:hover { background: var(--csb-navy-50); }
+
+  .btn-primary {
+    background: var(--csb-navy-800);
+    border: 1px solid var(--csb-navy-800);
+    color: #fff;
+  }
+
+  .btn-primary:hover { background: var(--csb-navy-700); border-color: var(--csb-navy-700); }
+
+  /* ─── MAIN CONTENT ─── */
+  .main-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 28px;
+    background: #FAFBFD;
+  }
+
+  /* ─── KPI CARDS ─── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .kpi-card {
+    background: #fff;
+    border: 1px solid var(--csb-line);
+    border-radius: 12px;
+    padding: 18px;
+  }
+
+  .kpi-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--csb-ink-500);
+    line-height: 1.3;
+  }
+
+  .kpi-number {
+    font-family: var(--font-serif);
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--csb-navy-800);
+    font-variant-numeric: tabular-nums;
+    margin: 6px 0 4px;
+    line-height: 1.1;
+  }
+
+  .kpi-trend {
+    font-size: 12px;
+    line-height: 1.3;
+  }
+
+  /* ─── TWO-COL ROW ─── */
+  .two-col-row {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  /* ─── PANELS ─── */
+  .panel {
+    background: #fff;
+    border: 1px solid var(--csb-line);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--csb-line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .panel-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--csb-navy-800);
+    line-height: 1.2;
+  }
+
+  .chart-legend {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: var(--csb-ink-500);
+  }
+
+  .legend-swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .canvas-wrap {
+    padding: 20px;
+    height: 280px;
+    position: relative;
+  }
+
+  /* ─── LIVE PILL ─── */
+  .pill-live {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--csb-success-bg);
+    color: var(--csb-success);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 999px;
+    line-height: 1;
+  }
+
+  .pill-live-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--csb-success);
+    flex-shrink: 0;
+  }
+
+  /* ─── ZONE PROGRESS ─── */
+  .zone-list {
+    padding: 16px;
+  }
+
+  .zone-row {
+    margin-bottom: 12px;
+  }
+
+  .zone-row:last-child { margin-bottom: 0; }
+
+  .zone-row-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 5px;
+  }
+
+  .zone-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--csb-navy-800);
+  }
+
+  .zone-count {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--csb-ink-700);
+  }
+
+  .progress-track {
+    height: 6px;
+    background: var(--csb-navy-100);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.3s ease;
+  }
+
+  /* ─── HEATMAP ─── */
+  .heatmap-panel {
+    margin-bottom: 16px;
+  }
+
+  .panel-subtitle {
+    font-size: 13px;
+    color: var(--csb-ink-500);
+  }
+
+  .heatmap-wrap {
+    padding: 16px;
+    overflow-x: auto;
+  }
+
+  .heatmap-grid {
+    display: grid;
+    grid-template-columns: 160px repeat(11, 1fr);
+    gap: 4px;
+    min-width: 640px;
+  }
+
+  .heatmap-header-cell {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--csb-ink-500);
+    text-align: center;
+    padding: 2px 0 4px;
+  }
+
+  .heatmap-zone-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--csb-navy-800);
+    padding-right: 8px;
+    display: flex;
+    align-items: center;
+  }
+
+  .heatmap-cell {
+    aspect-ratio: 1;
+    border-radius: 4px;
+    display: block;
+  }
+
+  /* ─── TABLE PANEL ─── */
+  .table-panel {
+    margin-bottom: 0;
+  }
+
+  .table-filters {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .filter-select, .filter-date {
+    background: #fff;
+    border: 1px solid var(--csb-line-strong);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 13px;
+    font-family: var(--font-sans);
+    color: var(--csb-navy-800);
+    cursor: pointer;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none' stroke='%238A97AC' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 1l4 4 4-4'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 9px center;
+    padding-right: 28px;
+    transition: border-color 0.15s;
+  }
+
+  .filter-select:focus, .filter-date:focus { border-color: var(--csb-navy-500); }
+
+  .filter-date {
+    background-image: none;
+    padding-right: 10px;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  thead th {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--csb-ink-500);
+    padding: 10px 20px;
+    background: #FAFBFD;
+    border-bottom: 1px solid var(--csb-line);
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  tbody td {
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--csb-line);
+    color: var(--csb-ink-900);
+    vertical-align: middle;
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: var(--csb-navy-50); }
+
+  .td-mono {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 999px;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .status-full    { background: var(--csb-danger-bg);  color: var(--csb-danger); }
+  .status-high    { background: var(--csb-warning-bg); color: var(--csb-warning); }
+  .status-normal  { background: var(--csb-success-bg); color: var(--csb-success); }
+  .status-low     { background: var(--csb-navy-100);   color: var(--csb-navy-800); }
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- ─── SIDEBAR ─── -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo"><span>D</span></div>
+      <div class="brand-text">
+        <span class="brand-name">DeskHub</span>
+        <span class="brand-sub">OSB Group · Atrium HQ</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <!-- Workplace -->
+      <div class="nav-section">
+        <span class="nav-section-label">Workplace</span>
+
+        <a href="#" class="nav-item active">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+          Dashboard
+        </a>
+
+        <a href="#" class="nav-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+            <line x1="8" y1="2" x2="8" y2="18"/>
+            <line x1="16" y1="6" x2="16" y2="22"/>
+          </svg>
+          Floor plans
+        </a>
+
+        <a href="#" class="nav-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="7" width="20" height="14" rx="2"/>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+          </svg>
+          Desks
+        </a>
+
+        <a href="#" class="nav-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          Bookings
+        </a>
+      </div>
+
+      <!-- Insights -->
+      <div class="nav-section">
+        <span class="nav-section-label">Insights</span>
+
+        <a href="#" class="nav-item active">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"/>
+            <line x1="12" y1="20" x2="12" y2="4"/>
+            <line x1="6" y1="20" x2="6" y2="14"/>
+          </svg>
+          Utilisation
+        </a>
+
+        <a href="#" class="nav-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          Issues
+        </a>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-row">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        David Reed
+      </div>
+    </div>
+  </aside>
+
+  <!-- ─── MAIN WRAPPER ─── -->
+  <div class="main-wrapper">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <div class="topbar-title">
+        <h1>Utilisation dashboard</h1>
+        <p>Atrium HQ · Apr 24 – Apr 30, 2026</p>
+      </div>
+      <div class="topbar-actions">
+        <div class="search-wrapper">
+          <span class="search-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </span>
+          <input type="text" class="search-input" placeholder="Search desks, zones…">
+        </div>
+        <button class="btn btn-secondary">Export CSV</button>
+        <button class="btn btn-primary">Schedule report</button>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+      <!-- KPI CARDS -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Avg occupancy this week</div>
+          <div class="kpi-number">64%</div>
+          <div class="kpi-trend" style="color:#1E8754;">↑ +8 pts</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Peak occupancy · Wed</div>
+          <div class="kpi-number">92%</div>
+          <div class="kpi-trend" style="color:#1E8754;">↑ vs 87% last wk</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">No-show rate</div>
+          <div class="kpi-number">4.1%</div>
+          <div class="kpi-trend" style="color:#1E8754;">↓ −1.2 pts</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Active bookings · today</div>
+          <div class="kpi-number">184</div>
+          <div class="kpi-trend" style="color:#51627A;">of 240 desks</div>
+        </div>
+      </div>
+
+      <!-- TWO-COL ROW -->
+      <div class="two-col-row">
+
+        <!-- Daily Occupancy Chart -->
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">Daily occupancy</span>
+            <div class="chart-legend">
+              <div class="legend-item">
+                <span class="legend-swatch" style="background:#15406F;"></span>
+                Booked
+              </div>
+              <div class="legend-item">
+                <span class="legend-swatch" style="background:#E8A93B;"></span>
+                Checked-in
+              </div>
+            </div>
+          </div>
+          <div class="canvas-wrap">
+            <canvas id="occChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Today by Zone -->
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">Today, by zone</span>
+            <span class="pill-live">
+              <span class="pill-live-dot"></span>
+              Live
+            </span>
+          </div>
+          <div class="zone-list">
+            <!-- Atrium · General -->
+            <div class="zone-row">
+              <div class="zone-row-header">
+                <span class="zone-name">Atrium · General</span>
+                <span class="zone-count">49/60</span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill" style="width:82%;background:#1E8754;"></div>
+              </div>
+            </div>
+            <!-- Atrium · Collab -->
+            <div class="zone-row">
+              <div class="zone-row-header">
+                <span class="zone-name">Atrium · Collab</span>
+                <span class="zone-count">22/24</span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill" style="width:92%;background:#B4761A;"></div>
+              </div>
+            </div>
+            <!-- Atrium · Quiet -->
+            <div class="zone-row">
+              <div class="zone-row-header">
+                <span class="zone-name">Atrium · Quiet</span>
+                <span class="zone-count">19/32</span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill" style="width:59%;background:#1E8754;"></div>
+              </div>
+            </div>
+            <!-- East · General -->
+            <div class="zone-row">
+              <div class="zone-row-header">
+                <span class="zone-name">East · General</span>
+                <span class="zone-count">38/48</span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill" style="width:79%;background:#1E8754;"></div>
+              </div>
+            </div>
+            <!-- East · Phone -->
+            <div class="zone-row">
+              <div class="zone-row-header">
+                <span class="zone-name">East · Phone</span>
+                <span class="zone-count">7/8</span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill" style="width:88%;background:#B4291F;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /two-col-row -->
+
+      <!-- HOURLY HEATMAP -->
+      <div class="panel heatmap-panel">
+        <div class="panel-header">
+          <span class="panel-title">Hourly heatmap · this week</span>
+          <span class="panel-subtitle">Average occupancy %</span>
+        </div>
+        <div class="heatmap-wrap">
+          <div class="heatmap-grid" id="heatmapGrid">
+            <!-- Generated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- LIVE BOOKINGS TABLE -->
+      <div class="panel table-panel">
+        <div class="panel-header">
+          <span class="panel-title">Live bookings</span>
+          <div class="table-filters">
+            <select class="filter-select">
+              <option>All buildings</option>
+              <option>Atrium HQ</option>
+              <option>Sari Building</option>
+            </select>
+            <select class="filter-select">
+              <option>All zones</option>
+              <option>General</option>
+              <option>Quiet</option>
+              <option>Collab</option>
+              <option>Phone</option>
+            </select>
+            <input type="date" class="filter-date" value="2026-04-30">
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Building</th>
+                <th>Floor</th>
+                <th>Zone</th>
+                <th>Booked</th>
+                <th>Capacity</th>
+                <th>Utilisation</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Atrium HQ</td>
+                <td>Floor 1</td>
+                <td>General</td>
+                <td>52</td>
+                <td>60</td>
+                <td class="td-mono">87%</td>
+                <td><span class="status-pill status-high">High</span></td>
+              </tr>
+              <tr>
+                <td>Atrium HQ</td>
+                <td>Floor 1</td>
+                <td>Quiet</td>
+                <td>14</td>
+                <td>20</td>
+                <td class="td-mono">70%</td>
+                <td><span class="status-pill status-normal">Normal</span></td>
+              </tr>
+              <tr>
+                <td>Atrium HQ</td>
+                <td>Floor 2</td>
+                <td>General</td>
+                <td>49</td>
+                <td>60</td>
+                <td class="td-mono">82%</td>
+                <td><span class="status-pill status-high">High</span></td>
+              </tr>
+              <tr>
+                <td>Atrium HQ</td>
+                <td>Floor 2</td>
+                <td>Collab</td>
+                <td>22</td>
+                <td>24</td>
+                <td class="td-mono">92%</td>
+                <td><span class="status-pill status-full">Full</span></td>
+              </tr>
+              <tr>
+                <td>Atrium HQ</td>
+                <td>Floor 2</td>
+                <td>Quiet</td>
+                <td>19</td>
+                <td>32</td>
+                <td class="td-mono">59%</td>
+                <td><span class="status-pill status-normal">Normal</span></td>
+              </tr>
+              <tr>
+                <td>Atrium HQ</td>
+                <td>Floor 3</td>
+                <td>General</td>
+                <td>8</td>
+                <td>48</td>
+                <td class="td-mono">17%</td>
+                <td><span class="status-pill status-low">Low</span></td>
+              </tr>
+              <tr>
+                <td>Sari Building</td>
+                <td>Floor 1</td>
+                <td>General</td>
+                <td>41</td>
+                <td>56</td>
+                <td class="td-mono">73%</td>
+                <td><span class="status-pill status-normal">Normal</span></td>
+              </tr>
+              <tr>
+                <td>Sari Building</td>
+                <td>Floor 1</td>
+                <td>Phone</td>
+                <td>4</td>
+                <td>6</td>
+                <td class="td-mono">67%</td>
+                <td><span class="status-pill status-normal">Normal</span></td>
+              </tr>
+              <tr>
+                <td>Sari Building</td>
+                <td>Floor 2</td>
+                <td>Quiet</td>
+                <td>28</td>
+                <td>36</td>
+                <td class="td-mono">78%</td>
+                <td><span class="status-pill status-high">High</span></td>
+              </tr>
+              <tr>
+                <td>Sari Building</td>
+                <td>Floor 2</td>
+                <td>Collab</td>
+                <td>18</td>
+                <td>18</td>
+                <td class="td-mono">100%</td>
+                <td><span class="status-pill status-full">Full</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div><!-- /main-wrapper -->
+</div><!-- /app-shell -->
+
+<script>
+// ─── CHART.JS: Daily Occupancy ───
+(function() {
+  const ctx = document.getElementById('occChart').getContext('2d');
+  const booked = [54, 58, 72, 64, 76, 62, 28];
+  const checkedIn = booked.map(v => Math.round(v * 0.93));
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      datasets: [
+        {
+          label: 'Booked',
+          data: booked,
+          backgroundColor: '#15406F',
+          borderRadius: 4,
+          borderSkipped: false,
+        },
+        {
+          label: 'Checked-in',
+          data: checkedIn,
+          backgroundColor: '#E8A93B',
+          borderRadius: 4,
+          borderSkipped: false,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { mode: 'index' }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: '#51627A', font: { size: 11 } }
+        },
+        y: {
+          min: 0,
+          max: 100,
+          ticks: {
+            callback: v => v + '%',
+            color: '#8A97AC',
+            font: { size: 10 },
+            stepSize: 25
+          },
+          grid: { color: '#EEF2F8' }
+        }
+      }
+    }
+  });
+})();
+
+// ─── HEATMAP ───
+(function() {
+  const grid = document.getElementById('heatmapGrid');
+  const hours = ['08','09','10','11','12','13','14','15','16','17','18'];
+  const zones = ['Atrium · Quiet','Atrium · Collab','Atrium · General','Atrium · Phone','East · Quiet','East · General'];
+  const zMod  = [0.6, 0.85, 0.95, 0.4, 0.5, 0.78];
+
+  function heatColor(v) {
+    if (v < 0.2) return '#EAF1F8';
+    if (v < 0.4) return '#C9D8EA';
+    if (v < 0.6) return '#F8E2AE';
+    if (v < 0.8) return '#F1C06A';
+    return '#E8A93B';
+  }
+
+  // Header row
+  const emptyHeader = document.createElement('div');
+  grid.appendChild(emptyHeader);
+  hours.forEach(h => {
+    const cell = document.createElement('div');
+    cell.className = 'heatmap-header-cell';
+    cell.textContent = h;
+    grid.appendChild(cell);
+  });
+
+  // Zone rows
+  zones.forEach((zone, zi) => {
+    const label = document.createElement('div');
+    label.className = 'heatmap-zone-label';
+    label.textContent = zone;
+    grid.appendChild(label);
+
+    hours.forEach((_, hi) => {
+      const heatVal = Math.min(1, (1 - Math.abs(hi - 5) / 6) * zMod[zi] * (0.85 + ((zi * 7 + hi * 3) % 13) / 60));
+      const cell = document.createElement('span');
+      cell.className = 'heatmap-cell';
+      cell.style.background = heatColor(heatVal);
+      cell.title = zone + ' ' + hours[hi] + ':00 — ' + Math.round(heatVal * 100) + '%';
+      grid.appendChild(cell);
+    });
+  });
+})();
+</script>
+</body>
+</html>

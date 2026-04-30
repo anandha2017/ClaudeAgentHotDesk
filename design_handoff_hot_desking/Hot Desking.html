@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Hot Desking — Design</title>
+<link rel="stylesheet" href="design-tokens.css"/>
+<link rel="stylesheet" href="app-styles.css"/>
+<style>
+  html, body { margin: 0; padding: 0; background: #f0eee9; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="ios-frame.jsx"></script>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="icons.jsx"></script>
+<script type="text/babel" src="floor-plan.jsx"></script>
+<script type="text/babel" src="mobile-employee.jsx"></script>
+<script type="text/babel" src="mobile-extras.jsx"></script>
+<script type="text/babel" src="admin-desktop.jsx"></script>
+
+<script type="text/babel">
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "accent": "navy",
+  "density": "regular",
+  "showLegend": true
+}/*EDITMODE-END*/;
+
+function App() {
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  const M = window.HD_Mobile;
+  const X = window.HD_Extras;
+  const A = window.HD_Admin;
+
+  return (
+    <>
+      <DesignCanvas>
+        <DCSection id="intro" title="Hot Desking · DeskHub" subtitle="An employee + admin design system mockup. Mobile uses iOS frames; admin is desktop. Drag artboards, double-click to focus.">
+        </DCSection>
+
+        <DCSection id="employee-mobile" title="Mobile · Employee (Maya)" subtitle="Daily flow — see today's desk, book a future day, find a desk, confirm, check in.">
+          <DCArtboard id="m-home" label="01 · Home / Today" width={400} height={860}><M.Screen_Home/></DCArtboard>
+          <DCArtboard id="m-cal" label="02 · Pick a date" width={400} height={860}><M.Screen_Calendar/></DCArtboard>
+          <DCArtboard id="m-map" label="03 · Floor map" width={400} height={860}><M.Screen_Map/></DCArtboard>
+          <DCArtboard id="m-confirm" label="04 · Confirmation" width={400} height={860}><M.Screen_Confirm/></DCArtboard>
+          <DCArtboard id="m-checkin" label="05 · Check-in pass" width={400} height={860}><M.Screen_CheckIn/></DCArtboard>
+        </DCSection>
+
+        <DCSection id="extras" title="Mobile · Team & visitors" subtitle="Find-my-team for Maya, lightweight pass for Tom (visitor, no app).">
+          <DCArtboard id="m-team" label="06 · Find my team" width={400} height={860}><X.Screen_Team/></DCArtboard>
+          <DCArtboard id="m-guest" label="07 · Visitor pass (Tom)" width={400} height={860}><X.Screen_Guest/></DCArtboard>
+        </DCSection>
+
+        <DCSection id="admin" title="Desktop · Admin (David & Priya)" subtitle="Facilities dashboard, floor-plan editor, IT policy & integrations.">
+          <DCArtboard id="a-dash" label="08 · Utilisation dashboard" width={1280} height={820}><A.Screen_Dashboard/></DCArtboard>
+          <DCArtboard id="a-floor" label="09 · Floor-plan editor" width={1280} height={820}><A.Screen_FloorEditor/></DCArtboard>
+          <DCArtboard id="a-policy" label="10 · Policies & integrations" width={1280} height={820}><A.Screen_Policy/></DCArtboard>
+        </DCSection>
+      </DesignCanvas>
+
+      <TweaksPanel>
+        <TweakSection label="Display"/>
+        <TweakRadio
+          label="Accent treatment"
+          value={t.accent}
+          options={['navy', 'gold', 'mixed']}
+          onChange={(v) => setTweak('accent', v)}
+        />
+        <TweakRadio
+          label="Density"
+          value={t.density}
+          options={['compact', 'regular', 'comfy']}
+          onChange={(v) => setTweak('density', v)}
+        />
+        <TweakToggle
+          label="Show legends"
+          value={t.showLegend}
+          onChange={(v) => setTweak('showLegend', v)}
+        />
+        <TweakSection label="About"/>
+        <div style={{ fontSize: 11, color: 'rgba(41,38,27,0.6)', lineHeight: 1.5 }}>
+          A 10-screen exploration: 5 employee mobile, 1 visitor, 1 team finder, 3 admin desktop. CSB navy + gold used as accents on a neutral workplace surface.
+        </div>
+      </TweaksPanel>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
